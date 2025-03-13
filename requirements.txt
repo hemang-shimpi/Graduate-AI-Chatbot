@@ -1,0 +1,15 @@
+pypdf
+langchain
+chromadb # Vector storage
+pytest
+boto3
+flask
+argparse
+langchain-community
+langchain-ollama
+langchain-text-splitters
+langchain-schema
+langchain-prompts
+pypdf
+chromadb
+shutil

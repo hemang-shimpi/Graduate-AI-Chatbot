@@ -4,26 +4,26 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms.ollama import Ollama
 from langchain_ollama import OllamaLLM
 
-
 from get_embedding_function import get_embedding_function
 
 CHROMA_PATH = "chroma"
-
 PROMPT_TEMPLATE = """
-If the question is a plain greeting (e.g., "Hi", "Hello", "Good morning", "Hey"), respond with a short appropriate greeting and ask "How can I help you?".  
+You are Georgia State University's Computer Science Graduate Program AI assistant answering students and prospective student's quesstions based on the Context given. You have to answer the qustions as if your are responding directly to the user.
 
-Otherwise, answer the question based only on the following context:  
+Guidelines:
+- If the question is a greeting (e.g., "hello", "hi", "hey"), respond with a friendly greeting.
+- If the context contains a direct answer, use it.
+- If the answer requires synthesis, provide a clear and structured explanation.
+- If the answer involves steps or best practices, list them numerically.
+- If no relevant information is found, say: "I don't know."
 
-context:"{context}"  
+Context:
+{context} 
 
----  
+Question:
+{question}
 
-Answer the question based on the above context  
-question:"{question}".  
-
-If there is no actual relevant answer, reply with "I'm sorry, but I don't have the information you're looking for."  
 """
- 
 
 
 
@@ -35,7 +35,6 @@ def main():
     query_text = args.query_text
     query_rag(query_text)
 
-
 def query_rag(query_text: str):
     # Prepare the DB.
     embedding_function = get_embedding_function()
@@ -46,13 +45,17 @@ def query_rag(query_text: str):
     results = db.similarity_search_with_score(query_text, k=5)
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    print("Contextttttt")
     print(context_text)
+    print('Donee------------e')
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
     prompt = prompt_template.format(context=context_text, question=query_text)
     # print(prompt)
 
-    model = OllamaLLM(model="mistral")
+    model = OllamaLLM(model="gemma2:2b")
+    print("A")
     response_text = model.invoke(prompt)
+    print("B")
 
     #sources = [doc.metadata.get("id", None) for doc, _score in results]
     #formatted_response = f"Response: {response_text}\nSources: {sources}"

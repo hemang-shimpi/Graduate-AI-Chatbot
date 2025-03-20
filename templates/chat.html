@@ -12,15 +12,15 @@
     <section>
         <div>
             <div class="flex flex-col justify-center items-center">
-                <h1 class="text-5xl py-2 font-bold text-transparent bg-clip-text bg-gradient-to-tr from-blue-700 via-blue-800 to-gray-900 drop-shadow-2xl underline decoration-double">Chat Interface</h1>
+                <h1 class="text-5xl py-2 font-bold text-transparent bg-clip-text bg-gradient-to-tr from-blue-700 via-blue-0 to-gray-900 drop-shadow-2xl underline decoration-double">Chat Interface</h1>
                 <div class="w-screen flex flex-col justify-evenly items-center py-8 px-4">
 
                     <div class="pb-2 w-full sm:w-[50rem] border border-blue-500 mx-5">
-                        <h1 class="w-full py-2 px-3 bg-gradient-to-bl from-green-300 via-blue-500 to-purple-600 font-bold text-white">Ask a question</h1>
+                        <h1 class="w-full py-2 px-3 bg-gradient-to-bl from-green-0 via-blue-500 to-purple-0 font-bold text-white">Ask a question</h1>
                         <ul class="py-4 px-3" id="chat_history">
                             {% if chat_history %}
                             {% for message in chat_history %}
-                            <li class="drop-shadow-2xl bg-gradient-to-br from-green-300/30 via-blue-500/10 to-purple-600/20 py-3 px-4 rounded-md text-slate-600 font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
+                            <li class="drop-shadow-2xl bg-gradient-to-br from-green-0 via-blue-500/10 to-purple-0py-3 px-4 rounded-md text-slate-600 font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
                                 {{ message.content }}
                             </li>
                             {% endfor %}

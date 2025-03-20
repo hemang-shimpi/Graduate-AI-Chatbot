@@ -8,6 +8,7 @@ chat_history = []  # Store chat history
 @app.route('/', methods=['GET', 'POST'])
 def chat():
     global chat_history
+ 
 
     if request.method == 'POST':
         # Ensure the correct content-type is being sent
@@ -21,6 +22,7 @@ def chat():
 
         # Append to the chat history
         chat_history.append({"user": query_text, "bot": response})
+        print(jsonify({"response": response, "chat_history": chat_history}))
 
         return jsonify({"response": response, "chat_history": chat_history})
 

@@ -36,8 +36,8 @@ def load_documents():
 
 def split_documents(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=80,
+        chunk_size=512,
+        chunk_overlap=100,
         length_function=len,
         is_separator_regex=False,
     )
@@ -65,12 +65,12 @@ def add_to_chroma(chunks: list[Document]):
             new_chunks.append(chunk)
 
     if len(new_chunks):
-        print(f"👉 Adding new documents: {len(new_chunks)}")
+        print(f" Adding new documents: {len(new_chunks)}")
         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
         db.add_documents(new_chunks, ids=new_chunk_ids)
-        db._persist()
+        #db._persist()
     else:
-        print("✅ No new documents to add")
+        print(" No new documents to add")
 
 
 def calculate_chunk_ids(chunks):

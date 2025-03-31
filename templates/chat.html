@@ -8,32 +8,32 @@
     <title>Chat Interface</title>
 </head>
 
-<body>
+<body class="bg-white text-[#0039A6]">
     <section>
         <div>
             <div class="flex flex-col justify-center items-center">
-                <h1 class="text-5xl py-2 font-bold text-transparent bg-clip-text bg-gradient-to-tr from-blue-700 via-blue-0 to-gray-900 drop-shadow-2xl underline decoration-double">Chat Interface</h1>
+                <h1 class="text-5xl py-2 font-bold text-[#0039A6] drop-shadow-2xl underline decoration-double">CS Graduate school</h1>
                 <div class="w-screen flex flex-col justify-evenly items-center py-8 px-4">
 
-                    <div class="pb-2 w-full sm:w-[50rem] border border-blue-500 mx-5">
-                        <h1 class="w-full py-2 px-3 bg-gradient-to-bl from-green-0 via-blue-500 to-purple-0 font-bold text-white">Ask a question</h1>
+                    <div class="pb-2 w-full sm:w-[50rem] border border-[#0039A6] mx-5 bg-[#0039A6] text-white rounded-2xl">
+                        <h1 class="w-full py-2 px-3 bg-[#0039A6] font-bold text-white rounded-t-2xl">Ask a question</h1>
                         <ul class="py-4 px-3" id="chat_history">
                             {% if chat_history %}
                             {% for message in chat_history %}
-                            <li class="drop-shadow-2xl bg-gradient-to-br from-green-0 via-blue-500/10 to-purple-0py-3 px-4 rounded-md text-slate-600 font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
+                            <li class="drop-shadow-2xl bg-[#0039A6] py-3 px-4 rounded-md text-white font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
                                 {{ message.content }}
                             </li>
                             {% endfor %}
                             {% else %}
                             <div class="w-full flex justify-center">
-                                <p class="border border-2 border-blue-500 text-blue-800 px-3 py-2 w-1/2 flex justify-center font-mono">No chat history yet.</p>
+                                <p class="border border-2 border-white text-white px-3 py-2 w-1/2 flex justify-center font-mono rounded-md">No chat history yet.</p>
                             </div>
                             {% endif %}
                         </ul>
 
                         <div class="w-full flex flex-row justify-evenly">
-                            <input class="bg-blue-200 w-full mx-4 py-2 rounded-2xl text-white font-mono px-4 border border-2 border-black" id="user_question" placeholder="Ask a question..." type="text" required>
-                            <button class="px-7 mx-2 rounded-2xl bg-gradient-to-br from-green-300 via-blue-500 to-purple-600 text-white hover:bg-red-400" id="submit_button" type="button">Submit</button>
+                            <input class="bg-white text-[#0039A6] w-full mx-4 py-2 rounded-2xl font-mono px-4 border border-2 border-white" id="user_question" placeholder="Ask a question..." type="text" required>
+                            <button class="px-7 mx-2 rounded-2xl bg-[#0039A6] text-white hover:bg-white hover:text-[#0039A6]" id="submit_button" type="button">Submit</button>
                         </div>
                     </div>
 
@@ -63,11 +63,11 @@
 
             // Add user message to chat history
             const chatHistory = document.getElementById('chat_history');
-            chatHistory.innerHTML += `<li class="drop-shadow-2xl bg-gradient-to-br from-green-300/30 via-blue-500/10 to-purple-600/20 py-3 px-4 rounded-md text-slate-600 font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
+            chatHistory.innerHTML += `<li class="drop-shadow-2xl bg-[#0039A6] py-3 px-4 rounded-md text-white font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
                                         <b>You:</b> ${userQuestion}
                                       </li>`;
             // Add bot response to chat history
-            chatHistory.innerHTML += `<li class="drop-shadow-2xl bg-gradient-to-br from-green-300/30 via-blue-500/10 to-purple-600/20 py-3 px-4 rounded-md text-slate-600 font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
+            chatHistory.innerHTML += `<li class="drop-shadow-2xl bg-[#0039A6] py-3 px-4 rounded-md text-white font-semibold sm:overflow-visible overflow-hidden sm:text-base text-xs font-mono">
                                         <b>Bot:</b> ${data.response}
                                       </li>`;
 

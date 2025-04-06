@@ -4,3 +4,4 @@ backup
 chroma
 chatbot_venv
 .vercel
+node_modules/

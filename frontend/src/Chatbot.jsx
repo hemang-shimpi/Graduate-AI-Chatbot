@@ -1,5 +1,5 @@
-// GSU Themed AI Chatbot - Final Version
-// Includes: Speech-to-text, avatars, auto-translation, dark mode, emoji picker (web component), text-to-speech
+// GSU Themed AI Chatbot - Final Professional Version
+// Fix: Center-align suggestion buttons with clean layout and settings panel
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -10,8 +10,10 @@ import {
   FaMoon,
   FaSun,
   FaMicrophone,
+  FaCog,
 } from "react-icons/fa";
 import pantherLogo from "./assets/logo.png";
+import botAvatar from "./assets/pounce-bot.png";
 
 const quickReplies = [
   "How to Apply",
@@ -26,31 +28,63 @@ const quickReplies = [
 const languages = ["English", "Spanish", "French", "Chinese"];
 
 function Chatbot() {
-  const [messages, setMessages] = useState(() => {
-    const stored = localStorage.getItem("chat_messages");
-    return stored
-      ? JSON.parse(stored)
-      : [
-          {
-            sender: "bot",
-            text: "Hello! 👋 I'm Pounce, your GSU chatbot. How can I help you today?",
-          },
-          {
-            sender: "bot",
-            text: "Which one would you like to learn about?",
-          },
-        ];
-  });
-
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [language, setLanguage] = useState("English");
   const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [showTools, setShowTools] = useState(false);
 
   const endRef = useRef(null);
   const emojiRef = useRef(null);
+
+  const defaultWelcomeMessages = [
+    {
+      sender: "bot",
+      text: "Hello! 👋 I'm Pounce, your GSU chatbot. How can I help you today?",
+    },
+    {
+      sender: "bot",
+      text: "Which one would you like to learn about?",
+    },
+  ];
+  
+  const [messages, setMessages] = useState(() => {
+    const stored = localStorage.getItem("chat_messages");
+    return stored ? JSON.parse(stored) : defaultWelcomeMessages;
+  });
+  
+
+  useEffect(() => {
+    const stored = localStorage.getItem("chat_messages");
+    if (stored) {
+      setMessages(JSON.parse(stored));
+    } else {
+      handleClear(); 
+    }
+  }, []);
+  
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    localStorage.setItem("chat_messages", JSON.stringify(messages));
+  }, [messages]);
+  
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        emojiRef.current &&
+        !emojiRef.current.contains(event.target) &&
+        !event.target.closest("button[title='Emoji Picker']")
+      ) {
+        setShowEmoji(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const picker = emojiRef.current;
@@ -86,51 +120,32 @@ function Chatbot() {
     simulateBotReply(`Great! Here's info about "${input}".`);
   };
 
-  const simulateBotReply = async (text) => {
-    setIsTyping(true);
-    let reply = text;
-    let translated = text;
+  const handleVoiceInput = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Speech recognition not supported");
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.start();
 
-    if (language !== "English") {
-      setMessages((prev) => [...prev, { sender: "bot", text: "Translating..." }]);
-      try {
-        translated = await translateText(text, language);
-      } catch (err) {
-        console.error("Translation failed:", err);
-      }
-    }
-
-    setMessages((prev) => prev.filter(m => m.text !== "Translating..."));
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "bot", text: translated }]);
-      if (ttsEnabled) speakText(translated);
-      setIsTyping(false);
-    }, 1200);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev + transcript);
+    };
   };
 
-  const translateText = async (text, targetLang) => {
-  if (!targetLang || targetLang === "English") return text;
-  try {
-    const res = await fetch("https://libretranslate.de/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q: text,
-        source: "en",
-        target: targetLang.toLowerCase().slice(0, 2),
-        format: "text",
-      }),
-    });
-    const data = await res.json();
-    return data.translatedText;
-  } catch (error) {
-    console.error("Translation failed:", error);
-    return text;
-  }
-};
+  const simulateBotReply = (text) => {
+    setIsTyping(true);
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { sender: "bot", text }]);
+      if (ttsEnabled) speakText(text);
+      setIsTyping(false);
+    }, 1000);
+  };
 
-
-   const speakText = (text) => {
+  const speakText = (text) => {
     const synth = window.speechSynthesis;
     if (!synth) return;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -168,59 +183,53 @@ function Chatbot() {
     window.URL.revokeObjectURL(url);
   };
 
-  const handleVoiceInput = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Speech recognition not supported in this browser.");
-      return;
-    }
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.start();
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInput((prev) => prev + transcript);
-    };
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error", event);
-    };
-  };
-
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-black px-4">
-        <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden relative">
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-purple-100 via-blue-100 to-green-100 dark:from-gray-800 dark:via-gray-900 dark:to-black px-4 transition-all">
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden relative">
+
+          {/* Emoji Picker */}
           {showEmoji && (
-            <div
-              ref={emojiRef}
-              className="absolute bottom-20 left-1/2 -translate-x-1/2 z-50 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-300 dark:border-gray-600 animate-dropdown"
-            >
-              <emoji-picker
-                class="w-72"
-                style={{ height: "330px" }}
-                
-              ></emoji-picker>
+            <div className="absolute bottom-32 right-6 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700">
+              <emoji-picker ref={emojiRef}></emoji-picker>
             </div>
           )}
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-sky-600 to-blue-800 dark:from-gray-700 dark:to-gray-900 p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={pantherLogo} alt="GSU Panther" className="h-8 w-8 drop-shadow-md" />
-              <h1 className="text-white font-semibold text-lg">Pounce</h1>
+          <div className="bg-gradient-to-r from-blue-700 to-indigo-900 dark:from-gray-700 dark:to-gray-900 p-4 flex items-center justify-between relative">
+            <div className="flex items-center gap-3">
+              <img src={pantherLogo} alt="GSU Panther" className="h-10 w-10 drop-shadow-md" />
+              <h1 className="text-white font-bold text-xl">Pounce</h1>
             </div>
-            <div className="flex items-center gap-2 text-white text-sm">
-              <button onClick={() => setDarkMode((d) => !d)} title="Toggle Theme">{darkMode ? <FaSun /> : <FaMoon />}</button>
-              <button title="Emoji Picker" onClick={() => setShowEmoji(!showEmoji)}><FaSmile /></button>
-              <button onClick={() => setTtsEnabled(t => !t)} title="Toggle Text-to-Speech">
-                {ttsEnabled ? "🔊" : "🔇"}
+            <div className="flex items-center gap-2 relative">
+              {showTools && (
+                <div className="absolute right-10 top-12 md:top-10 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-md border border-gray-300 dark:border-gray-600 flex gap-2 z-50">
+                  <button onClick={() => setDarkMode((d) => !d)} title="Toggle Theme">
+                    {darkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-blue-400" />}
+                  </button>
+                  <button title="Emoji Picker" onClick={() => setShowEmoji(!showEmoji)}>
+                    <FaSmile className="text-pink-400" />
+                  </button>
+                  <button onClick={() => setTtsEnabled(t => !t)} title="Toggle TTS">
+                    {ttsEnabled ? "🔊" : "🔇"}
+                  </button>
+                  <button title="Download Chat" onClick={handleDownload}>
+                    <FaDownload className="text-green-500" />
+                  </button>
+                  <button onClick={handleClear} title="New Chat">
+                    <FaTrash className="text-red-500" />
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  setShowTools((prev) => !prev);
+                  setShowEmoji(false);
+                }}
+                className="text-white text-lg transition-transform duration-300"
+              >
+                <FaCog className={`${showTools ? "animate-spin" : ""}`} />
               </button>
-              <button title="Download Chat" onClick={handleDownload}><FaDownload /></button>
-              <button title="New Chat" onClick={handleClear} className="px-2 py-1 bg-blue-700 text-white text-xs rounded hover:bg-blue-800 transition">New Chat</button>
               <select
                 className="bg-transparent outline-none text-white text-sm"
                 value={language}
@@ -234,12 +243,18 @@ function Chatbot() {
           </div>
 
           {/* Messages */}
-          <div className="h-[420px] overflow-y-auto px-4 py-3 bg-gray-50 dark:bg-gray-900 space-y-2 text-sm">
+          <div className="relative h-[440px] overflow-y-auto px-4 py-4 bg-gray-50 dark:bg-gray-900 space-y-3 text-sm">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                 <div className="flex items-start gap-2">
-                  {msg.sender === "bot" && <div className="text-xl">🤖</div>}
-                  <div className={`px-4 py-2 rounded-lg shadow-sm ${msg.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"}`}>
+                {msg.sender === "bot" && (
+                  <img
+                    src={botAvatar}
+                    alt="Pounce Bot"
+                    className="h-8 w-8 rounded-none"
+                  />
+                )}
+                  <div className={`px-4 py-2 rounded-2xl shadow ${msg.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"}`}>
                     {msg.text}
                   </div>
                   {msg.sender === "user" && <div className="text-xl">👤</div>}
@@ -252,41 +267,43 @@ function Chatbot() {
             <div ref={endRef} />
           </div>
 
-          {/* Quick Replies */}
-          <div className="px-4 pb-3 flex flex-col gap-2 bg-white dark:bg-gray-800">
-            {quickReplies.map((text, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleQuickReply(text)}
-                className="border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-300 px-3 py-2 text-sm rounded-md hover:bg-blue-50 dark:hover:bg-gray-700 transition"
-              >
-                {text}
-              </button>
-            ))}
+          {/* Suggestions - Now Centered & Aligned */}
+          <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 pt-2 pb-3">
+            <div className="flex flex-wrap justify-center gap-2">
+              {quickReplies.map((text, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleQuickReply(text)}
+                  className="border border-blue-300 dark:border-blue-500 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-gray-700 transition text-xs"
+                >
+                  {text}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Input */}
           <form
             onSubmit={handleSend}
-            className="flex items-center px-4 py-3 border-t bg-white dark:bg-gray-800 gap-2"
+            className="flex items-center px-4 py-4 border-t bg-white dark:bg-gray-800 gap-2"
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me a question"
-              className="flex-1 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              placeholder="Ask me a question..."
+              className="flex-1 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             />
             <button
               type="button"
               onClick={handleVoiceInput}
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-500 text-lg transition transform hover:scale-110"
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-500 text-xl transition hover:scale-110"
             >
               <FaMicrophone />
             </button>
             <button
               type="submit"
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-500 text-lg transition transform hover:scale-110"
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-500 text-xl transition hover:scale-110"
             >
               <FaPaperPlane />
             </button>

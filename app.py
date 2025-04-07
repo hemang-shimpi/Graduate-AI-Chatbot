@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from query_data import query_rag
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
+
 
 chat_history = []  # Store chat history
 

@@ -117,7 +117,29 @@ function Chatbot() {
     if (!input.trim()) return;
     setMessages((prev) => [...prev, { sender: "user", text: input }]);
     setInput("");
-    simulateBotReply(`Great! Here's info about "${input}".`);
+    fetch("http://127.0.0.1:5000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query: input }),
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      const botReply = data.response || "Sorry, something went wrong.";
+      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
+      if (ttsEnabled) speakText(botReply);
+    })
+    .catch((error) => {
+      console.error("Error occurred:", error);
+      setMessages((prev) => [...prev, { sender: "bot", text: "An error occurred: " + error.message }]);
+    });
+    
   };
 
   const handleVoiceInput = () => {

@@ -1,5 +1,6 @@
 // GSU Themed AI Chatbot - Final Professional Version
 // Fix: Center-align suggestion buttons with clean layout and settings panel
+import ReactMarkdown from 'react-markdown';
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -16,13 +17,13 @@ import pantherLogo from "./assets/logo.png";
 import botAvatar from "./assets/pounce-bot.png";
 
 const quickReplies = [
-  "How to Apply",
-  "Application Deadlines",
-  "Other Deadlines",
-  "Tuition and Fees",
-  "Programs Available",
-  "Courses Available",
-  "Office Contacts",
+  "Requirements",
+  "Course Waiver",
+  "Apply to GRA",
+  "Apply to GTA",
+  "Changing research advisors",
+
+
 ];
 
 const languages = ["English", "Spanish", "French", "Chinese"];
@@ -44,10 +45,7 @@ function Chatbot() {
       sender: "bot",
       text: "Hello! 👋 I'm Pounce, your GSU chatbot. How can I help you today?",
     },
-    {
-      sender: "bot",
-      text: "Which one would you like to learn about?",
-    },
+
   ];
   
   const [messages, setMessages] = useState(() => {
@@ -161,7 +159,9 @@ function Chatbot() {
   const simulateBotReply = (text) => {
     setIsTyping(true);
     setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "bot", text }]);
+
+      const responseText = typeof text === 'object' ? JSON.stringify(text) : text;
+      setMessages((prev) => [...prev, { sender: "bot", text: responseText }]);
       if (ttsEnabled) speakText(text);
       setIsTyping(false);
     }, 1000);
@@ -175,10 +175,39 @@ function Chatbot() {
     synth.speak(utterance);
   };
 
-  const handleQuickReply = (reply) => {
+  const handleQuickReply = async (reply) => {
     setMessages((prev) => [...prev, { sender: "user", text: reply }]);
-    simulateBotReply(`Here's some information about "${reply}".`);
-  };
+
+    console.log("Here");  // Debugging log
+
+    // Update UI to reflect the user's message
+
+
+    try {
+        // Sending the reply (user's message) to the server
+        const response = await fetch("http://localhost:5000/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ query: reply }) // Send the reply as the query
+        });
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        // Extract data from the response
+        const data = await response.json();
+        // Simulate a bot reply (Make sure this function is defined correctly elsewhere)
+        simulateBotReply(data.response);
+
+        // Assuming data.response contains the bot's message
+    } catch (error) {
+        console.error("Error fetching response:", error);
+    }
+};
+
 
   const handleClear = () => {
     setMessages([
@@ -277,7 +306,7 @@ function Chatbot() {
                   />
                 )}
                   <div className={`px-4 py-2 rounded-2xl shadow ${msg.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white"}`}>
-                    {msg.text}
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
                   </div>
                   {msg.sender === "user" && <div className="text-xl">👤</div>}
                 </div>

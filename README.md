@@ -28,8 +28,7 @@
 |------|------|
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="24"/> | React (Frontend) |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="24"/> | Python (Backend) |
-| <img src="https://www.vectorlogo.zone/logos/langchainai/langchainai-icon.svg" width="24"/> | LangChain |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Gemini_logo.svg" width="24"/> | Google Gemini |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="24" /> | Google Gemini |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg" width="24"/> | Postman |
 
 ---

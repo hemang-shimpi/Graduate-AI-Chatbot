@@ -8,7 +8,7 @@
 
 ## 🔗 Live Demo
 
-🌐 [chatbot-taupe-sigma.vercel.app](https://chatbot-taupe-sigma.vercel.app)
+🌐 [http://askpounce.me/](http://askpounce.me/)
 
 ---
 

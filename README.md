@@ -39,7 +39,6 @@
 
 - Python 3.x
 - Node.js & npm
-- (Optional) Docker
 
 ### Setup Instructions
 
